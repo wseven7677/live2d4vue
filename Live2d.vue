@@ -20,12 +20,19 @@ export default {
         height: {
             default: 300
         },
-        onMove: {}
+        onMove: {}, // 控制模型运动
+        modelData: { // 模型导入的接口
+            type: Object
+        },
+        index: {
+            type: Number,
+            default: 0
+        }
     },
     data() {
         return {
-            sp: null,
-            cvs: null,
+            sp: null, // Simple对象实例
+            cvs: null, // 画布
             canvasId: uuidv4()
         };
     },
@@ -36,32 +43,21 @@ export default {
                 this.onMove(model);
             });
         },
-        moveSample() {
-            this.sp.drawMove(l2dm => {
-                var t = window.UtSystem.getUserTimeMSec() * 0.001 * 2 * Math.PI; //1秒ごとに2π(1周期)増える
-                var cycle = 3.0; //パラメータが一周する時間(秒)(参数进行回合的时间（以秒为单位）)
-                // PARAM_ANGLE_Xのパラメータが[cycle]秒ごとに-30から30まで変化する
-                // (PARAM_ANGLE_X的参数每[周期]秒从-30变为30)
-                l2dm.setParamFloat("PARAM_ANGLE_X", 30 * Math.sin(t / cycle));
-                l2dm.setParamFloat("PARAM_EYE_R_OPEN", 1 * Math.sin(t / cycle));
-                l2dm.setParamFloat("PARAM_EYE_L_OPEN", 1 * Math.sin(t / cycle));
-
-            });
-        },
         liveLoad(simple, canvas) {
+            var that = this;
             // Live2Dの初期化
             window.Live2D.init();
 
             // コンテキストを失ったとき(当我失去上下文)
             canvas.addEventListener("webglcontextlost", function(e) {
                 simple.myerror("context lost");
-                this.loadLive2DCompleted = false;
-                this.initLive2DCompleted = false;
+                that.loadLive2DCompleted = false;
+                that.initLive2DCompleted = false;
 
                 var cancelAnimationFrame =
                     window.cancelAnimationFrame ||
                     window.mozCancelAnimationFrame;
-                cancelAnimationFrame(this.requestID); //アニメーションを停止(停止动画)
+                cancelAnimationFrame(that.requestID); //アニメーションを停止(停止动画)
 
                 e.preventDefault();
             }, false);
@@ -73,21 +69,16 @@ export default {
             }, false);
 
             // Init and start Loop
-            simple.initLoop(canvas);
+            simple.initLoop(canvas, this.index);
         }
     },
     mounted() {
         // 获得canvas
         this.cvs = document.getElementById(this.canvasId);
         // 配置live2d对象
-        this.sp = new Simple({
-            type: "Live2D Model Setting",
-            name: "Epsilon2.1",
-            model: "/api/assets/Epsilon2.1/Epsilon2.1.moc",
-            textures: [
-                "/api/assets/Epsilon2.1/Epsilon2.1.2048/texture_00.png",
-            ]
-        });
+        this.sp = new Simple(Object.assign({
+            type: "Live2D Model Setting"
+        }, this.modelData));
         // 将两者初始化
         this.liveLoad(this.sp, this.cvs);
 

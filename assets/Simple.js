@@ -49,6 +49,7 @@ class Simple {
         //
         this.gl = null;
         this.canvas = null;
+        this.glno = null;
 
     }
     /*
@@ -57,7 +58,7 @@ class Simple {
      * (获取/初始化WebGL上下文。
      *初始化Live2D，开始绘制循环。)
      */
-    initLoop(canvas /*HTML5 canvasオブジェクト*/ ) // (HTML5画布对象)
+    initLoop(canvas /*HTML5 canvasオブジェクト*/ ,no) // (HTML5画布对象)
     {
         //------------ WebGLの初期化 ------------
         var that = this;
@@ -73,15 +74,17 @@ class Simple {
         }
 
         // OpenGLのコンテキストをセット(设置OpenGL上下文)
-        window.Live2D.setGL(gl);
         this.gl = gl;
         this.canvas = canvas;
+        that.glno = no;
         //------------ Live2Dの初期化 ------------
 
         // mocファイルからLive2Dモデルのインスタンスを生成
         // (从moc文件生成Live2D模型的实例
-        this.loadBytes(that.modelDef.model, function(buf) {
-            that.live2DModel = window.Live2DModelWebGL.loadModel(buf);
+        this.loadBytes(that.modelDef.model, function(buf){
+            // OpenGLのコンテキストをセット(MultiCanvasの場合はここでglをセットする)
+            window.Live2D.setGL(gl, that.glno);
+            that.live2DModel = window.Live2DModelWebGL.loadModel(buf, that.glno);
         });
 
         // テクスチャの読み込み(阅读纹理)
@@ -234,6 +237,18 @@ class Simple {
         }
 
         request.send(null);
+        return request;
+    }
+
+    cancelAnimation() {
+        var that = this;
+        that.loadLive2DCompleted = false;
+        that.initLive2DCompleted = false;
+
+        var cancelAnimationFrame =
+                window.cancelAnimationFrame ||
+                window.mozCancelAnimationFrame;
+        cancelAnimationFrame(that.requestID);
     }
 
 
