@@ -2,7 +2,7 @@
   "name": "live2d4vue",
   "version": "0.1.0",
   "description": "a plugin of live2d used in vue",
-  "main": "index.js",
+  "main": "dist/live2d4vue.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "",
@@ -14,7 +14,12 @@
     "vue"
   ],
   "author": "wseven7677",
-  "license": "ISC",
+  "license": "MIT",
+  "private":"false",
+  "repository":{
+      "type":"git",
+      "url":"https://github.com/wseven7677/live2d4vue"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
