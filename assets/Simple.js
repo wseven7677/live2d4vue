@@ -92,6 +92,7 @@ class Simple {
         for (var i = 0; i < this.modelDef.textures.length; i++) {
             (function(tno) { // 即時関数で i の値を tno に固定する（onerror用)(使用立即函数将i的值固定为tno)
                 that.loadedImages[tno] = new Image();
+                that.loadedImages[tno].crossOrigin="Anonymous";
                 that.loadedImages[tno].src = that.modelDef.textures[tno];
                 that.loadedImages[tno].onload = function() {
                     if ((++loadCount) == that.modelDef.textures.length) {
